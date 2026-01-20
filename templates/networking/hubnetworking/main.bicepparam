@@ -66,7 +66,7 @@ param hubNetworks = [
       }
     ]
     azureFirewallSettings: {
-      deployAzureFirewall: true
+      deployAzureFirewall: false
       azureFirewallName: 'afw-alz-${parLocations[0]}'
       azureSkuTier: 'Standard'
       publicIPAddressObject: {
@@ -77,12 +77,12 @@ param hubNetworks = [
       }
     }
     bastionHostSettings: {
-      deployBastion: true
+      deployBastion: false
       bastionHostSettingsName: 'bas-alz-${parLocations[0]}'
       skuName: 'Standard'
     }
     vpnGatewaySettings: {
-      deployVpnGateway: true
+      deployVpnGateway: false
       name: 'vgw-alz-${parLocations[0]}'
       skuName: 'VpnGw1AZ'
       vpnMode: 'activeActiveBgp'
@@ -90,17 +90,17 @@ param hubNetworks = [
       asn: 65515
     }
     expressRouteGatewaySettings: {
-      deployExpressRouteGateway: true
+      deployExpressRouteGateway: false
       name: 'ergw-alz-${parLocations[0]}'
     }
     privateDnsSettings: {
       deployPrivateDnsZones: true
-      deployDnsPrivateResolver: true
+      deployDnsPrivateResolver: false
       privateDnsResolverName: 'dnspr-alz-${parLocations[0]}'
       privateDnsZones: []
     }
     ddosProtectionPlanSettings: {
-      deployDdosProtectionPlan: true
+      deployDdosProtectionPlan: false
       name: 'ddos-alz-${parLocations[0]}'
     }
   }
@@ -150,7 +150,7 @@ param hubNetworks = [
       }
     ]
     azureFirewallSettings: {
-      deployAzureFirewall: true
+      deployAzureFirewall: false
       azureFirewallName: 'afw-alz-${parLocations[1]}'
       azureSkuTier: 'Standard'
       publicIPAddressObject: {
@@ -161,12 +161,12 @@ param hubNetworks = [
       }
     }
     bastionHostSettings: {
-      deployBastion: true
+      deployBastion: false
       bastionHostSettingsName: 'bas-alz-${parLocations[1]}'
       skuName: 'Standard'
     }
     vpnGatewaySettings: {
-      deployVpnGateway: true
+      deployVpnGateway: false
       name: 'vgw-alz-${parLocations[1]}'
       skuName: 'VpnGw1AZ'
       vpnMode: 'activeActiveBgp'
@@ -174,12 +174,12 @@ param hubNetworks = [
       asn: 65515
     }
     expressRouteGatewaySettings: {
-      deployExpressRouteGateway: true
+      deployExpressRouteGateway: false
       name: 'ergw-alz-${parLocations[1]}'
     }
     privateDnsSettings: {
       deployPrivateDnsZones: true
-      deployDnsPrivateResolver: true
+      deployDnsPrivateResolver: false
       privateDnsResolverName: 'dnspr-alz-${parLocations[1]}'
       privateDnsZones: [
         'privatelink.{regionName}.azurecontainerapps.io'
