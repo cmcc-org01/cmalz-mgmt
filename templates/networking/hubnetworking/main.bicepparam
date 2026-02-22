@@ -77,7 +77,7 @@ param hubNetworks = [
       }
     }
     bastionHostSettings: {
-      deployBastion: false
+      deployBastion: true
       bastionHostSettingsName: 'bas-alz-${parLocations[0]}'
       skuName: 'Standard'
     }
