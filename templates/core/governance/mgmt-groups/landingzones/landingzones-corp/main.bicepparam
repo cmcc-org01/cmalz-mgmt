@@ -20,7 +20,7 @@ param landingZonesCorpConfig = {
   customerPolicyDefs: []
   customerPolicySetDefs: []
   customerPolicyAssignments: []
-  subscriptionsToPlaceInManagementGroup: []
+  subscriptionsToPlaceInManagementGroup: ['f40536f8-7566-4fd0-ac91-b91224e158fd','c9812099-1fbc-4827-a999-c631e98f6c4a','6782ff4e-556c-4c0e-a997-4bc5e6785001']
   waitForConsistencyCounterBeforeCustomPolicyDefinitions: 10
   waitForConsistencyCounterBeforeCustomPolicySetDefinitions: 10
   waitForConsistencyCounterBeforeCustomRoleDefinitions: 10
