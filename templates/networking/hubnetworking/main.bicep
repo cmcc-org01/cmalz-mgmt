@@ -100,7 +100,7 @@ var firewallPrivateIpAddresses = [
   for (hub, i) in hubNetworks: hub.azureFirewallSettings.deployAzureFirewall
     ? cidrHost(
         (filter(hub.subnets, subnet => subnet.?name == 'AzureFirewallSubnet')[?0] ?? { addressPrefix: '' }).?addressPrefix ?? '',
-        3
+        4
       )
     : ''
 ]
@@ -108,7 +108,7 @@ var dnsResolverInboundIpAddresses = [
   for (hub, i) in hubNetworks: (hub.privateDnsSettings.deployDnsPrivateResolver && hub.privateDnsSettings.deployPrivateDnsZones)
     ? cidrHost(
         (filter(hub.subnets, subnet => subnet.?name == 'DNSPrivateResolverInboundSubnet')[?0] ?? { addressPrefix: '' }).?addressPrefix ?? '',
-        3
+        4
       )
     : ''
 ]
@@ -325,6 +325,7 @@ module resUserSubnetsRouteTable 'br/public:avm/res/network/route-table:0.5.0' = 
     scope: resourceGroup(hubResourceGroupNames[i])
     dependsOn: [
       modHubNetworkingResourceGroups
+      resAzureFirewall[i]
     ]
     params: {
       name: 'rt-hub-std-${hub.location}'
@@ -335,7 +336,7 @@ module resUserSubnetsRouteTable 'br/public:avm/res/network/route-table:0.5.0' = 
           properties: {
             addressPrefix: '0.0.0.0/0'
             nextHopType: 'VirtualAppliance'
-            nextHopIpAddress: firewallPrivateIpAddresses[i]
+            nextHopIpAddress: resAzureFirewall[i]!.outputs.privateIp
           }
         }
       ]
@@ -871,9 +872,6 @@ type azureFirewallType = {
 
   @description('Optional. Lock settings.')
   lock: lockType?
-
-  @description('Optional. Management IP address configuration.')
-  managementIPAddressObject: object?
 
   @description('Optional. Public IP address object.')
   publicIPAddressObject: object?
