@@ -9,7 +9,7 @@ on:
       skip_what_if:
         description: 'Skip What If Check?'
         type: boolean
-        default: false
+        default: true
       governance-int-root:
         description: 'Run Steps: Governance - Intermediate Root'
         type: boolean
@@ -59,7 +59,7 @@ jobs:
       id-token: write
       contents: read
     with:
-      skip_what_if: ${{ github.event_name != 'workflow_dispatch' && false || inputs.skip_what_if == true }}
+      skip_what_if: ${{ github.event_name != 'workflow_dispatch' && true || inputs.skip_what_if == true }}
       governance-int-root: ${{ github.event_name != 'workflow_dispatch' && true || inputs.governance-int-root == true }}
       governance-landingzones: ${{ github.event_name != 'workflow_dispatch' && true || inputs.governance-landingzones == true }}
       governance-landingzones-corp: ${{ github.event_name != 'workflow_dispatch' && true || inputs.governance-landingzones-children == true }}
