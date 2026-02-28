@@ -65,6 +65,7 @@ param hubNetworks = [
       deployAzureFirewall: true
       azureFirewallName: 'afw-alz-${parLocations[0]}'
       azureSkuTier: 'Standard'
+      zones: []
       publicIPAddressObject: {
         name: 'pip-afw-alz-${parLocations[0]}'
       }
