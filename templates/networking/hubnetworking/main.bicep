@@ -100,7 +100,7 @@ var firewallPrivateIpAddresses = [
   for (hub, i) in hubNetworks: hub.azureFirewallSettings.deployAzureFirewall
     ? cidrHost(
         (filter(hub.subnets, subnet => subnet.?name == 'AzureFirewallSubnet')[?0] ?? { addressPrefix: '' }).?addressPrefix ?? '',
-        3
+        4
       )
     : ''
 ]
@@ -108,7 +108,7 @@ var dnsResolverInboundIpAddresses = [
   for (hub, i) in hubNetworks: (hub.privateDnsSettings.deployDnsPrivateResolver && hub.privateDnsSettings.deployPrivateDnsZones)
     ? cidrHost(
         (filter(hub.subnets, subnet => subnet.?name == 'DNSPrivateResolverInboundSubnet')[?0] ?? { addressPrefix: '' }).?addressPrefix ?? '',
-        3
+        4
       )
     : ''
 ]
@@ -207,7 +207,7 @@ module resHubVirtualNetwork 'br/public:avm/res/network/virtual-network:0.7.2' = 
 // Azure Firewall
 //=====================
 
-module resAzureFirewall 'br/public:avm/res/network/azure-firewall:0.9.2' = [
+module resAzureFirewall 'br/public:avm/res/network/azure-firewall:0.10.0' = [
   for (hub, i) in hubNetworks: if (hub.azureFirewallSettings.deployAzureFirewall) {
     name: 'afw-${hub.name}-${uniqueString(parHubNetworkingResourceGroupNamePrefix, hub.location)}'
     scope: resourceGroup(hubResourceGroupNames[i])
@@ -219,7 +219,6 @@ module resAzureFirewall 'br/public:avm/res/network/azure-firewall:0.9.2' = [
       location: hub.location
       azureSkuTier: hub.?azureFirewallSettings.?azureSkuTier ?? 'Standard'
       firewallPolicyId: hub.?azureFirewallSettings.?firewallPolicyId ?? resFirewallPolicy[i].?outputs.resourceId
-      managementIPAddressObject: hub.?azureFirewallSettings.?managementIPAddressObject
       publicIPAddressObject: hub.?azureFirewallSettings.?publicIPAddressObject ?? (!empty(hub.?azureFirewallSettings.?publicIPResourceID ?? '')
         ? null
         : {
@@ -319,34 +318,6 @@ module resVnetPeering 'br/public:avm/res/network/virtual-network:0.7.2' = [
 // Route Tables
 //=====================
 
-// Firewall Route Table - for AzureFirewallSubnet with default route to Internet
-module resFirewallRouteTable 'br/public:avm/res/network/route-table:0.5.0' = [
-  for (hub, i) in hubNetworks: if (hub.azureFirewallSettings.deployAzureFirewall) {
-    name: 'rt-fw-${hub.name}-${uniqueString(parHubNetworkingResourceGroupNamePrefix, hub.location)}'
-    scope: resourceGroup(hubResourceGroupNames[i])
-    dependsOn: [
-      modHubNetworkingResourceGroups
-    ]
-    params: {
-      name: 'rt-hub-fw-${hub.location}'
-      location: hub.location
-      routes: [
-        {
-          name: 'internet'
-          properties: {
-            addressPrefix: '0.0.0.0/0'
-            nextHopType: 'Internet'
-          }
-        }
-      ]
-      disableBgpRoutePropagation: false
-      lock: hub.?azureFirewallSettings.?lock ?? parGlobalResourceLock
-      tags: hub.?azureFirewallSettings.?tags ?? parTags
-      enableTelemetry: parEnableTelemetry
-    }
-  }
-]
-
 // User Subnets Route Table - for regular subnets with default route to Firewall
 module resUserSubnetsRouteTable 'br/public:avm/res/network/route-table:0.5.0' = [
   for (hub, i) in hubNetworks: if (hub.azureFirewallSettings.deployAzureFirewall) {
@@ -354,6 +325,7 @@ module resUserSubnetsRouteTable 'br/public:avm/res/network/route-table:0.5.0' = 
     scope: resourceGroup(hubResourceGroupNames[i])
     dependsOn: [
       modHubNetworkingResourceGroups
+      resAzureFirewall[i]
     ]
     params: {
       name: 'rt-hub-std-${hub.location}'
@@ -364,7 +336,7 @@ module resUserSubnetsRouteTable 'br/public:avm/res/network/route-table:0.5.0' = 
           properties: {
             addressPrefix: '0.0.0.0/0'
             nextHopType: 'VirtualAppliance'
-            nextHopIpAddress: firewallPrivateIpAddresses[i]
+            nextHopIpAddress: resAzureFirewall[i]!.outputs.privateIp
           }
         }
       ]
@@ -590,7 +562,7 @@ module resBastionNsg 'br/public:avm/res/network/network-security-group:0.5.2' = 
 //=====================
 // Hybrid Connectivity
 //=====================
-module resVpnGateway 'br/public:avm/res/network/virtual-network-gateway:0.10.0' = [
+module resVpnGateway 'br/public:avm/res/network/virtual-network-gateway:0.10.1' = [
   for (hub, i) in hubNetworks: if (hub.vpnGatewaySettings.deployVpnGateway) {
     name: 'vpnGateway-${uniqueString(parHubNetworkingResourceGroupNamePrefix,hub.name,hub.location)}'
     scope: resourceGroup(hubResourceGroupNames[i])
@@ -630,7 +602,7 @@ module resVpnGateway 'br/public:avm/res/network/virtual-network-gateway:0.10.0' 
   }
 ]
 
-module resExpressRouteGateway 'br/public:avm/res/network/virtual-network-gateway:0.10.0' = [
+module resExpressRouteGateway 'br/public:avm/res/network/virtual-network-gateway:0.10.1' = [
   for (hub, i) in hubNetworks: if (hub.?expressRouteGatewaySettings.?deployExpressRouteGateway ?? false) {
     name: 'expressRouteGateway-${uniqueString(parHubNetworkingResourceGroupNamePrefix,hub.name,hub.location)}'
     scope: resourceGroup(hubResourceGroupNames[i])
@@ -900,9 +872,6 @@ type azureFirewallType = {
 
   @description('Optional. Lock settings.')
   lock: lockType?
-
-  @description('Optional. Management IP address configuration.')
-  managementIPAddressObject: object?
 
   @description('Optional. Public IP address object.')
   publicIPAddressObject: object?

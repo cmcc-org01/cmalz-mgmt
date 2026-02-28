@@ -51,10 +51,6 @@ param hubNetworks = [
         addressPrefix: '10.0.0.0/26'
       }
       {
-        name: 'AzureFirewallManagementSubnet'
-        addressPrefix: '10.0.0.192/26'
-      }
-      {
         name: 'DNSPrivateResolverInboundSubnet'
         addressPrefix: '10.0.0.160/28'
         delegation: 'Microsoft.Network/dnsResolvers'
@@ -66,14 +62,11 @@ param hubNetworks = [
       }
     ]
     azureFirewallSettings: {
-      deployAzureFirewall: false
+      deployAzureFirewall: true
       azureFirewallName: 'afw-alz-${parLocations[0]}'
       azureSkuTier: 'Standard'
       publicIPAddressObject: {
         name: 'pip-afw-alz-${parLocations[0]}'
-      }
-      managementIPAddressObject: {
-        name: 'pip-afw-mgmt-alz-${parLocations[0]}'
       }
     }
     bastionHostSettings: {
@@ -135,10 +128,6 @@ param hubNetworks = [
         addressPrefix: '10.1.0.0/26'
       }
       {
-        name: 'AzureFirewallManagementSubnet'
-        addressPrefix: '10.1.0.192/26'
-      }
-      {
         name: 'DNSPrivateResolverInboundSubnet'
         addressPrefix: '10.1.0.160/28'
         delegation: 'Microsoft.Network/dnsResolvers'
@@ -155,9 +144,6 @@ param hubNetworks = [
       azureSkuTier: 'Standard'
       publicIPAddressObject: {
         name: 'pip-afw-alz-${parLocations[1]}'
-      }
-      managementIPAddressObject: {
-        name: 'pip-afw-mgmt-alz-${parLocations[1]}'
       }
     }
     bastionHostSettings: {
