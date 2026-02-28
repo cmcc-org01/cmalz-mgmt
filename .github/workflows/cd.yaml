@@ -52,27 +52,124 @@ on:
         default: true
 
 jobs:
+  # ============================================================
+  # Detect which paths changed (push only — skipped for dispatch)
+  # ============================================================
+  detect-changes:
+    name: Detect Changes
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      governance-int-root: ${{ steps.filter.outputs.governance-int-root }}
+      governance-landingzones: ${{ steps.filter.outputs.governance-landingzones }}
+      governance-landingzones-children: ${{ steps.filter.outputs.governance-landingzones-children }}
+      governance-platform: ${{ steps.filter.outputs.governance-platform }}
+      governance-platform-children: ${{ steps.filter.outputs.governance-platform-children }}
+      governance-sandbox: ${{ steps.filter.outputs.governance-sandbox }}
+      governance-decommissioned: ${{ steps.filter.outputs.governance-decommissioned }}
+      governance-rbac: ${{ steps.filter.outputs.governance-rbac }}
+      core: ${{ steps.filter.outputs.core }}
+      networking: ${{ steps.filter.outputs.networking }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            governance-int-root:
+              - 'templates/core/governance/mgmt-groups/int-root/**'
+              - 'templates/core/governance/lib/**'
+              - 'templates/core/alzCoreType.bicep'
+              - 'parameters.json'
+              - 'bicepconfig.json'
+            governance-landingzones:
+              - 'templates/core/governance/mgmt-groups/landingzones/main.bicep'
+              - 'templates/core/governance/mgmt-groups/landingzones/main.bicepparam'
+              - 'templates/core/governance/lib/**'
+              - 'templates/core/alzCoreType.bicep'
+              - 'parameters.json'
+              - 'bicepconfig.json'
+            governance-landingzones-children:
+              - 'templates/core/governance/mgmt-groups/landingzones/landingzones-corp/**'
+              - 'templates/core/governance/mgmt-groups/landingzones/landingzones-online/**'
+              - 'templates/core/governance/lib/**'
+              - 'templates/core/alzCoreType.bicep'
+              - 'parameters.json'
+              - 'bicepconfig.json'
+            governance-platform:
+              - 'templates/core/governance/mgmt-groups/platform/main.bicep'
+              - 'templates/core/governance/mgmt-groups/platform/main.bicepparam'
+              - 'templates/core/governance/lib/**'
+              - 'templates/core/alzCoreType.bicep'
+              - 'parameters.json'
+              - 'bicepconfig.json'
+            governance-platform-children:
+              - 'templates/core/governance/mgmt-groups/platform/platform-connectivity/**'
+              - 'templates/core/governance/mgmt-groups/platform/platform-identity/**'
+              - 'templates/core/governance/mgmt-groups/platform/platform-management/**'
+              - 'templates/core/governance/mgmt-groups/platform/platform-security/**'
+              - 'templates/core/governance/lib/**'
+              - 'templates/core/alzCoreType.bicep'
+              - 'parameters.json'
+              - 'bicepconfig.json'
+            governance-sandbox:
+              - 'templates/core/governance/mgmt-groups/sandbox/**'
+              - 'templates/core/governance/lib/**'
+              - 'templates/core/alzCoreType.bicep'
+              - 'parameters.json'
+              - 'bicepconfig.json'
+            governance-decommissioned:
+              - 'templates/core/governance/mgmt-groups/decommissioned/**'
+              - 'templates/core/governance/lib/**'
+              - 'templates/core/alzCoreType.bicep'
+              - 'parameters.json'
+              - 'bicepconfig.json'
+            governance-rbac:
+              - 'templates/core/governance/mgmt-groups/**/main-rbac.bicep'
+              - 'templates/core/governance/mgmt-groups/**/main-rbac.bicepparam'
+              - 'templates/core/governance/lib/**'
+              - 'templates/core/alzCoreType.bicep'
+              - 'parameters.json'
+              - 'bicepconfig.json'
+            core:
+              - 'templates/core/logging/**'
+              - 'templates/core/alzCoreType.bicep'
+              - 'parameters.json'
+              - 'bicepconfig.json'
+            networking:
+              - 'templates/networking/**'
+              - 'templates/core/alzCoreType.bicep'
+              - 'parameters.json'
+              - 'bicepconfig.json'
+
+  # ============================================================
+  # Deploy (uses change detection for push, inputs for dispatch)
+  # ============================================================
   plan_and_apply:
+    needs: [detect-changes]
+    if: ${{ always() && !failure() && !cancelled() }}
     uses: cmcc-org01/cmalz-mgmt-templates/.github/workflows/cd-template.yaml@main
     name: 'CD'
     permissions:
       id-token: write
       contents: read
     with:
-      skip_what_if: ${{ github.event_name != 'workflow_dispatch' && true || inputs.skip_what_if == true }}
-      governance-int-root: ${{ github.event_name != 'workflow_dispatch' && true || inputs.governance-int-root == true }}
-      governance-landingzones: ${{ github.event_name != 'workflow_dispatch' && true || inputs.governance-landingzones == true }}
-      governance-landingzones-corp: ${{ github.event_name != 'workflow_dispatch' && true || inputs.governance-landingzones-children == true }}
-      governance-landingzones-online: ${{ github.event_name != 'workflow_dispatch' && true || inputs.governance-landingzones-children == true }}
-      governance-platform: ${{ github.event_name != 'workflow_dispatch' && true || inputs.governance-platform == true }}
-      governance-platform-connectivity: ${{ github.event_name != 'workflow_dispatch' && true || inputs.governance-platform-children == true }}
-      governance-platform-identity: ${{ github.event_name != 'workflow_dispatch' && true || inputs.governance-platform-children == true }}
-      governance-platform-management: ${{ github.event_name != 'workflow_dispatch' && true || inputs.governance-platform-children == true }}
-      governance-platform-security: ${{ github.event_name != 'workflow_dispatch' && true || inputs.governance-platform-children == true }}
-      governance-sandbox: ${{ github.event_name != 'workflow_dispatch' && true || inputs.governance-sandbox == true }}
-      governance-decommissioned: ${{ github.event_name != 'workflow_dispatch' && true || inputs.governance-decommissioned == true }}
-      governance-platform-rbac: ${{ github.event_name != 'workflow_dispatch' && true || inputs.governance-rbac == true }}
-      governance-platform-connectivity-rbac: ${{ github.event_name != 'workflow_dispatch' && true || inputs.governance-rbac == true }}
-      governance-landingzones-rbac: ${{ github.event_name != 'workflow_dispatch' && true || inputs.governance-rbac == true }}
-      core-logging: ${{ github.event_name != 'workflow_dispatch' && true || inputs.core == true }}
-      networking-hubnetworking: ${{ github.event_name != 'workflow_dispatch' && true || inputs.networking == true }}
+      skip_what_if: ${{ github.event_name == 'workflow_dispatch' && inputs.skip_what_if == true || github.event_name == 'push' }}
+      governance-int-root: ${{ github.event_name == 'workflow_dispatch' && inputs.governance-int-root == true || needs.detect-changes.outputs.governance-int-root == 'true' }}
+      governance-landingzones: ${{ github.event_name == 'workflow_dispatch' && inputs.governance-landingzones == true || needs.detect-changes.outputs.governance-landingzones == 'true' }}
+      governance-landingzones-corp: ${{ github.event_name == 'workflow_dispatch' && inputs.governance-landingzones-children == true || needs.detect-changes.outputs.governance-landingzones-children == 'true' }}
+      governance-landingzones-online: ${{ github.event_name == 'workflow_dispatch' && inputs.governance-landingzones-children == true || needs.detect-changes.outputs.governance-landingzones-children == 'true' }}
+      governance-platform: ${{ github.event_name == 'workflow_dispatch' && inputs.governance-platform == true || needs.detect-changes.outputs.governance-platform == 'true' }}
+      governance-platform-connectivity: ${{ github.event_name == 'workflow_dispatch' && inputs.governance-platform-children == true || needs.detect-changes.outputs.governance-platform-children == 'true' }}
+      governance-platform-identity: ${{ github.event_name == 'workflow_dispatch' && inputs.governance-platform-children == true || needs.detect-changes.outputs.governance-platform-children == 'true' }}
+      governance-platform-management: ${{ github.event_name == 'workflow_dispatch' && inputs.governance-platform-children == true || needs.detect-changes.outputs.governance-platform-children == 'true' }}
+      governance-platform-security: ${{ github.event_name == 'workflow_dispatch' && inputs.governance-platform-children == true || needs.detect-changes.outputs.governance-platform-children == 'true' }}
+      governance-sandbox: ${{ github.event_name == 'workflow_dispatch' && inputs.governance-sandbox == true || needs.detect-changes.outputs.governance-sandbox == 'true' }}
+      governance-decommissioned: ${{ github.event_name == 'workflow_dispatch' && inputs.governance-decommissioned == true || needs.detect-changes.outputs.governance-decommissioned == 'true' }}
+      governance-platform-rbac: ${{ github.event_name == 'workflow_dispatch' && inputs.governance-rbac == true || needs.detect-changes.outputs.governance-rbac == 'true' }}
+      governance-platform-connectivity-rbac: ${{ github.event_name == 'workflow_dispatch' && inputs.governance-rbac == true || needs.detect-changes.outputs.governance-rbac == 'true' }}
+      governance-landingzones-rbac: ${{ github.event_name == 'workflow_dispatch' && inputs.governance-rbac == true || needs.detect-changes.outputs.governance-rbac == 'true' }}
+      core-logging: ${{ github.event_name == 'workflow_dispatch' && inputs.core == true || needs.detect-changes.outputs.core == 'true' }}
+      networking-hubnetworking: ${{ github.event_name == 'workflow_dispatch' && inputs.networking == true || needs.detect-changes.outputs.networking == 'true' }}
