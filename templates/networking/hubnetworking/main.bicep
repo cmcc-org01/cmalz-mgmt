@@ -229,9 +229,7 @@ module resAzureFirewall 'br/public:avm/res/network/azure-firewall:0.10.0' = [
       threatIntelMode: (hub.?azureFirewallSettings.?azureSkuTier == 'Standard')
         ? 'Alert'
         : hub.?azureFirewallSettings.?threatIntelMode ?? 'Alert'
-      availabilityZones: hub.?azureFirewallSettings.?zones == null
-        ? hubAzureFirewallRecommendedZones[i]
-        : (!empty(hub.?azureFirewallSettings.?zones ?? []) ? hub.?azureFirewallSettings.?zones : null)
+      availabilityZones: hub.?azureFirewallSettings.?zones ?? hubAzureFirewallRecommendedZones[i]
       virtualNetworkResourceId: resHubVirtualNetwork[i].outputs.resourceId
       lock: hub.?azureFirewallSettings.?lock ?? parGlobalResourceLock
       tags: hub.?azureFirewallSettings.?tags ?? parTags
