@@ -45,6 +45,7 @@ param hubNetworks = [
       {
         name: 'GatewaySubnet'
         addressPrefix: '10.0.0.128/27'
+        routeTable: '/subscriptions/c373b07c-0a3a-443f-a50e-fec574055898/resourceGroups/rg-alz-vpn-northeurope/providers/Microsoft.Network/routeTables/rt-gateway-northeurope'
       }
       {
         name: 'AzureFirewallSubnet'
