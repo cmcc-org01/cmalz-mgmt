@@ -194,6 +194,7 @@ module resHubVirtualNetwork 'br/public:avm/res/network/virtual-network:0.7.2' = 
           networkSecurityGroupResourceId: (subnet.?name == 'AzureBastionSubnet' && hub.bastionHostSettings.deployBastion)
             ? resBastionNsg[i].?outputs.resourceId
             : subnet.?networkSecurityGroupId
+          routeTableResourceId: subnet.?routeTable
         }
       ]
       lock: parGlobalResourceLock ?? hub.?lock
