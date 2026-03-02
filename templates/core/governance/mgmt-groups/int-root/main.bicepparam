@@ -18,7 +18,45 @@ param intRootConfig = {
   customerRbacRoleAssignments: []
   customerPolicyDefs: []
   customerPolicySetDefs: []
-  customerPolicyAssignments: []
+  customerPolicyAssignments: [
+    {
+      id: '/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/Deploy-Diag-Firewall'
+      identity: {
+        type: 'SystemAssigned'
+      }
+      location: 'northeurope'
+      name: 'Deploy-Diag-Firewall'
+      properties: {
+        displayName: 'Deploy Diagnostic Settings for Firewall to Log Analytics workspace'
+        description: 'Deploys the diagnostic settings for Firewall to stream to a Log Analytics workspace when any Firewall which is missing this diagnostic settings is created or updated.'
+        enforcementMode: 'Default'
+        metadata: {}
+        nonComplianceMessages: [
+          {
+            message: 'Diagnostic settings for Azure Firewall must be deployed to send logs to Log Analytics.'
+          }
+        ]
+        notScopes: []
+        overrides: []
+        parameters: {
+          logAnalytics: {
+            value: '/subscriptions/0b4a033d-028f-4f5c-8a9a-eed7254d75ed/resourcegroups/rg-alz-security-logging-001/providers/Microsoft.OperationalInsights/workspaces/alz-security-log-analytics'
+          }
+          effect: {
+            value: 'DeployIfNotExists'
+          }
+        }
+        policyDefinitionId: '/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyDefinitions/Deploy-Diagnostics-Firewall'
+        resourceSelectors: []
+        scope: '/providers/Microsoft.Management/managementGroups/alz'
+        roleDefinitionIds: [
+          '/providers/microsoft.authorization/roleDefinitions/749f88d5-cbae-40b8-bcfc-e573ddc772fa'
+          '/providers/microsoft.authorization/roleDefinitions/92aaf0da-9dab-42b6-94a3-d43ce8d16293'
+        ]
+      }
+      type: 'Microsoft.Authorization/policyAssignments'
+    }
+  ]
   subscriptionsToPlaceInManagementGroup: []
   waitForConsistencyCounterBeforeCustomPolicyDefinitions: 10
   waitForConsistencyCounterBeforeCustomPolicySetDefinitions: 10
