@@ -44,7 +44,7 @@ param intRootConfig = {
       name: 'Deploy-Diag-Firewall'
       properties: {
         displayName: 'Deploy Diagnostic Settings for Firewall to Log Analytics workspace'
-        description: 'Deploys the diagnostic settings for Firewall to stream to a Log Analytics workspace when any Firewall which is missing this diagnostic settings is created or updated.'
+        description: 'Deploys the diagnostic settings for Firewall to stream to a Log Analytics workspace when any Firewall which is missing these diagnostic settings is created or updated.'
         enforcementMode: 'Default'
         metadata: {}
         nonComplianceMessages: [
