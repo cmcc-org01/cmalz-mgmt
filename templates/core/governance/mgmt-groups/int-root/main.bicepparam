@@ -27,6 +27,11 @@ param intRootConfig = {
   customerPolicyDefs: []
   customerPolicySetDefs: []
   customerPolicyAssignments: [
+    // NOTE: Deploy-Diagnostics-Firewall is marked deprecated (v1.2.0-deprecated) in favour of built-in
+    // initiative 0884adba-2312-4468-abeb-5422caed1038. However, the built-in initiative assigned via
+    // Deploy-Diag-LogsCat (f5b29bc4-feca-4cc6-a58a-772dd5e290a5) does not include a policy definition
+    // for Microsoft.Network/azureFirewalls. This custom policy is used until the built-in initiative
+    // adds Azure Firewall coverage, at which point this assignment should be removed.
     {
       id: '/providers/Microsoft.Management/managementGroups/alz/providers/Microsoft.Authorization/policyAssignments/Deploy-Diag-Firewall'
       identity: {
