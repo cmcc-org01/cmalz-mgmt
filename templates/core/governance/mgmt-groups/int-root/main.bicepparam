@@ -32,7 +32,7 @@ param intRootConfig = {
       identity: {
         type: 'SystemAssigned'
       }
-      location: 'northeurope'
+      location: parLocations[0]
       name: 'Deploy-Diag-Firewall'
       properties: {
         displayName: 'Deploy Diagnostic Settings for Firewall to Log Analytics workspace'
